@@ -18,6 +18,11 @@ me = session.get_summoner(name='Dwonger')
 def mastery_pages():
     my_mastery_pages = session.get_mastery_pages([me['id'], ])[str(me['id'])]
     print(my_mastery_pages)
-def server_status(server):
-    server = session.get_server_status('na')
-    pprint.pprint(server)
+
+def server_status(server: str):
+    server = session.get_server_status(server)
+    pprint.pprint(server['services'])
+    return server['services']
+
+
+

@@ -2,6 +2,7 @@ import discord
 import leagueCommands
 from botInfo import token
 from discord.ext import commands
+from discord import embeds
 import asyncio
 description = "test bot"
 #client = discord.Client()
@@ -35,12 +36,30 @@ def on_ready():
 
 @commandBot.command()
 @asyncio.coroutine
-def add( left : int, right : int):
+def add(left: int, right: int):
     """Adds two numbers together."""
     print ("adding")
     yield from commandBot.say((left + right))
 
+@commandBot.command()
+@asyncio.coroutine
+def status(server: str):
+    services = leagueCommands.server_status(server)
+    yield from commandBot.say(formatBold(services[0]['name'] + ": ") + services[0]['status'])
+    if services[0]['incidents']:
+        incident = getIncident(services)
+        yield from commandBot.say(formatBoldItalic("Incident: ") + incident)
 
+
+def formatBold(input: str):
+    return "**" + input + "**"
+
+def formatBoldItalic(input: str):
+    return "***" + input + "***"
+# Gets the incident posted on the game.
+# Will only be called if the incidents array is not empty, as to avoid errors
+def getIncident(services):
+    return services[0]['incidents'][0]['updates'][0]['content']
 @commandBot.command()
 @asyncio.coroutine
 def eat():
