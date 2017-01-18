@@ -2,6 +2,7 @@ import discord
 import leagueCommands
 from botInfo import token
 from discord.ext import commands
+
 from discord import embeds
 import asyncio
 description = "test bot"
@@ -49,6 +50,8 @@ def status(server: str):
     if services[0]['incidents']:
         incident = getIncident(services)
         yield from commandBot.say(formatBoldItalic("Incident: ") + incident)
+
+
 
 
 def formatBold(input: str):
