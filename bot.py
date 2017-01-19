@@ -5,6 +5,7 @@ from discord.ext import commands
 from riotwatcher import riotwatcher
 from discord import embeds
 import asyncio
+import json
 description = "Botting is bad, mmkay??"
 #client = discord.Client()
 commandBot = commands.Bot(command_prefix='!', description=description)
@@ -87,6 +88,7 @@ def eat():
     """Nom."""
     yield from commandBot.say("Time to eat! NOM NOM NOM")
 
+
 @commandBot.command()
 @asyncio.coroutine
 def joined(member : discord.Member):
@@ -94,6 +96,17 @@ def joined(member : discord.Member):
     yield from commandBot.say('{0.name} joined in {0.joined_at}'.format(member))
 
 
+@commandBot.command()
+@asyncio.coroutine
+def quote():
+   """Quote a random league champion."""
+   with open('data.json') as data_file:
+      data = json.load(data_file)
+   champion = random.choice(list(data['quizData'].items()))
+   answer = data['champions'][champion[0]]['name']
+   championQuotes = champion[1]['quotes']
+   quote = random.choice(list(championQuotes.values()))['text']
+   yield from commandBot.say(quote)
 
 
 
