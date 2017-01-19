@@ -1,13 +1,14 @@
 import discord
-import leagueCommands
+import random
 from botInfo import token
 from discord.ext import commands
-
+from riotwatcher import riotwatcher
 from discord import embeds
 import asyncio
-description = "test bot"
+description = "Botting is bad, mmkay??"
 #client = discord.Client()
 commandBot = commands.Bot(command_prefix='!', description=description)
+startupExt = ["Math", "League"]
 
 @commandBot.event
 @asyncio.coroutine
@@ -16,57 +17,74 @@ def on_ready():
     print(commandBot.user.name)
     print(commandBot.user.id)
     print('------')
+    try:
+        for ext in startupExt:
+            commandBot.load_extension(ext)
+    except Exception as e:
+        exc = '{}: {}'.format(type(e).__name__, e)
+        print('Failed to load extension {}\n{}'.format("Math", exc))
 
 
-#@client.event
-#@asyncio.coroutine
-#def on_message(message):
-#    if message.content.startswith('l!serverStats'):
-#        leagueCommands.server_status(message.content[1])
-#        print(message.content[1])
-#    elif message.content.startswith('!add'):
-#        add(message.content[1], message.content[2])
-#    elif message.content.startswith('!sleep'):
-#        yield from client.send_message(message.channel, "Sleeping for 5 secs. Oyasumi~~")
-#        yield from asyncio.sleep(5)
-#        yield from client.send_message(message.channel, 'Done sleeping')
-#    elif message.content.startswith('!eat'):
-#        yield from client.send_message(message.channel, "Time to eat! NOM NOM NOM")
-#    elif message.content.startswith('!adrian'):
-#        yield from client.send_message(message.channel, ':adriangasm:')
+
+
+
+@commandBot.command()
+@asyncio.coroutine
+def teemo():
+    """Teemo."""
+    yield from commandBot.say("Teemo is the best!")
+
 
 @commandBot.command()
 @asyncio.coroutine
-def add(left: int, right: int):
-    """Adds two numbers together."""
-    print ("adding")
-    yield from commandBot.say((left + right))
+def riven():
+    """Talks about how awesome Riven is"""
+    statements = {0: "Riven is amazing",
+                  1: "Riven takes mechanical skill.",
+                  2: "Riven's lore is so deep.",
+                  3: "Riven was the poster child of Noxus.",
+                  4: "Riven can bench more than you.",
+                  5: "Riven is beautiful.",
+                  6: "Riven's kit fits together perfectly.",
+                  7: "Riven is the perfect mix of elegance and strength.",
+                  8: "What is broken Can be Reforged.",
+                  9: "This is why I spend so much time sheath shopping."}
+    number = random.randrange(0, 10)
+    yield from commandBot.say(statements[number])
+
 
 @commandBot.command()
 @asyncio.coroutine
-def status(server: str):
-    services = leagueCommands.server_status(server)
-    yield from commandBot.say(formatBold(services[0]['name'] + ": ") + services[0]['status'])
-    if services[0]['incidents']:
-        incident = getIncident(services)
-        yield from commandBot.say(formatBoldItalic("Incident: ") + incident)
+def yasuo():
+    """For the Yas Mains."""
+    yield from commandBot.say("I'm a Yasuo Main and I'm Toxic.")
 
 
+@commandBot.command()
+@asyncio.coroutine
+def yi():
+    """Cowsep I honor you with this."""
+    yield from commandBot.say("I WAS IN ALPHA!!! >:O")
 
 
-def formatBold(input: str):
-    return "**" + input + "**"
+@commandBot.command()
+@asyncio.coroutine
+def nami():
+    """This one's for Aly."""
+    yield from commandBot.say("I'm the Best Nami.")
 
-def formatBoldItalic(input: str):
-    return "***" + input + "***"
-# Gets the incident posted on the game.
-# Will only be called if the incidents array is not empty, as to avoid errors
-def getIncident(services):
-    return services[0]['incidents'][0]['updates'][0]['content']
+
+@commandBot.command()
+@asyncio.coroutine
+def say(inp: str):
+    """Repeats whatever the user puts in"""
+    yield from commandBot.say(inp)
+
+
 @commandBot.command()
 @asyncio.coroutine
 def eat():
-    """Eat"""
+    """Nom."""
     yield from commandBot.say("Time to eat! NOM NOM NOM")
 
 @commandBot.command()
@@ -74,6 +92,10 @@ def eat():
 def joined(member : discord.Member):
     """Says when a member joined."""
     yield from commandBot.say('{0.name} joined in {0.joined_at}'.format(member))
+
+
+
+
 
 commandBot.run(token)
 
