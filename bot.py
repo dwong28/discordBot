@@ -8,7 +8,7 @@ import asyncio
 description = "Botting is bad, mmkay??"
 #client = discord.Client()
 commandBot = commands.Bot(command_prefix='!', description=description)
-startupExt = ["Math", "League"]
+startupExt = ["Math", "League", "General"]
 
 @commandBot.event
 @asyncio.coroutine
