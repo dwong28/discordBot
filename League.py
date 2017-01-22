@@ -10,14 +10,20 @@ servers = ['br', 'eune', 'euw',
            'kr', 'lan', 'las', 'na',
            'oce', 'ru', 'tr', 'jp']
 
+
+
 # Establish Connection to Riot API
 session = RiotWatcher(riot_api_key)
 print(session.can_make_request())
 
+
 class League():
+    # Trivia Status
+    # 0 => Inactive; 1 => Active
+    triviaStatus = 0
+
     def __init__(self, bot):
         self.bot = bot
-
 
     @commands.command()
     @asyncio.coroutine
@@ -37,7 +43,25 @@ class League():
                     incident = getIncident(services[n])
                     yield from self.bot.say(formatBoldItalic("Incident: ") + incident)
 
+    @commands.command()
+    @asyncio.coroutine
+    def trivia(self, string: str):
+        """Plays a game of Trivia."""
+        if string.lower() == "start":
+            if League.triviaStatus == 1:
+                yield from self.bot.say("Error: Trivia is started.")
+            else:
+                yield from self.bot.say("Staring Trivia.")
+                League.triviaStatus = 1
+                print("Starting")
+        elif string.lower() == "end":
+            League.triviaStatus = 0
+            yield from self.bot.say("Ending Trivia.")
 
+            print("Ending")
+        else:
+            yield from self.bot.say(formatBoldItalic("Error: ") + "Invalid Trivia command")
+            print("Error")
 
 
 # Gets the incident posted on the game.
@@ -45,12 +69,15 @@ class League():
 def getIncident(service):
     return service['incidents'][0]['updates'][0]['content']
 
+
 # Formatting for Discord Stuffs
 def formatBold(inp: str):
     return "**" + inp + "**"
 
+
 def formatBoldItalic(inp: str):
     return "***" + inp + "***"
+
 
 def formatItalic(inp: str):
     return "*" + inp + "*"
