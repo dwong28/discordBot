@@ -51,7 +51,8 @@ class League():
             if League.triviaStatus == 1:
                 yield from self.bot.say("Error: Trivia is started.")
             else:
-                yield from self.bot.say("Staring Trivia.")
+                yield from self.bot.say("Trivia has started! Name the Champion that speaks each " +
+                                        "quote. First to 10 Points wins!")
                 League.triviaStatus = 1
                 print("Starting")
         elif string.lower() == "end":
