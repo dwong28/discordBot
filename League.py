@@ -50,12 +50,14 @@ class League():
         if string.lower() == "start":
             if League.triviaStatus == 1:
                 yield from self.bot.say("Error: Trivia is started.")
+
             else:
                 yield from self.bot.say("Trivia has started! Name the Champion that speaks each " +
                                         "quote. First to 10 Points wins!")
                 League.triviaStatus = 1
+
                 print("Starting")
-        elif string.lower() == "end":
+        elif string == "end":
             League.triviaStatus = 0
             yield from self.bot.say("Ending Trivia.")
 
@@ -63,6 +65,7 @@ class League():
         else:
             yield from self.bot.say(formatBoldItalic("Error: ") + "Invalid Trivia command")
             print("Error")
+
 
 
 # Gets the incident posted on the game.

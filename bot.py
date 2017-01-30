@@ -110,5 +110,7 @@ def quote():
 
 
 
+
+
 commandBot.run(token)
 
