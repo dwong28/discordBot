@@ -57,7 +57,7 @@ class League():
     # Trivia Status
     # 0 => Inactive; 1 => Active
     triviaStatus = 0
-
+    championList = session.static_get_champion_list()
     def __init__(self, bot):
         self.bot = bot
 
@@ -159,17 +159,17 @@ class League():
     def mostPlayed(self, ign: str):
         try:
             summoner = session.get_summoner(ign)
+            leagueInfo = session.get_league_entry([summoner['id'],])
             mostPlayed = session.get_ranked_stats(summoner['id'])
             champList = mostPlayed['champions']
             sortedList = sorted(champList, key=lambda k: k['stats']['totalSessionsPlayed'], reverse=True)
-            pprint.pprint(sortedList)
-
+            sortedList[:] = [d for d in sortedList if d.get('id') != 0]
             data = discord.Embed(description=formatUnderline(summoner['name']+"'s Most Played Champions"),
-                                 colour=discord.Colour(value=0X008000))
-            for i in range(1, min(len(sortedList), 11)):
-
-                info = session.static_get_champion(sortedList[i]['id'])
-
+                                 colour=discord.Colour(value=borderColors[leagueInfo[str(summoner['id'])][0]['tier']]))
+            for i in range(0, min(len(sortedList), 10)):
+                for c in League.championList['data']:
+                    if sortedList[i]['id']==League.championList['data'][c]['id']:
+                        info = League.championList['data'][c]
                 combinedName = info['name'] + ": " + info['title']
                 gamesPlayed = sortedList[i]['stats']['totalSessionsPlayed']
                 gamesWon = sortedList[i]['stats']['totalSessionsWon']
