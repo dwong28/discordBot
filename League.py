@@ -1,10 +1,10 @@
 import discord
-import random
 import asyncio
 import pprint
 from riotwatcher import RiotWatcher, LoLException, error_404
 from discord.ext import commands
 from botInfo import riot_api_key
+from operator import itemgetter
 
 
 # Valid League of Legends Servers
@@ -154,7 +154,39 @@ class League():
         yield from self.bot.say(embed=data)
 
 
+    @commands.command()
+    @asyncio.coroutine
+    def mostPlayed(self, ign: str):
+        try:
+            summoner = session.get_summoner(ign)
+            mostPlayed = session.get_ranked_stats(summoner['id'])
+            champList = mostPlayed['champions']
+            sortedList = sorted(champList, key=lambda k: k['stats']['totalSessionsPlayed'], reverse=True)
+            pprint.pprint(sortedList)
 
+            data = discord.Embed(description=formatUnderline(summoner['name']+"'s Most Played Champions"),
+                                 colour=discord.Colour(value=0X008000))
+            for i in range(1, min(len(sortedList), 11)):
+
+                info = session.static_get_champion(sortedList[i]['id'])
+
+                combinedName = info['name'] + ": " + info['title']
+                gamesPlayed = sortedList[i]['stats']['totalSessionsPlayed']
+                gamesWon = sortedList[i]['stats']['totalSessionsWon']
+                ka = sortedList[i]['stats']['totalChampionKills'] + sortedList[i]['stats']['totalAssists']
+                d = sortedList[i]['stats']['totalDeathsPerSession']
+                if d == 0:
+                    kda = ka
+                else:
+                    kda = ka / d
+                string = formatUnderline("Games Played:") + " " + str(gamesPlayed) + " " + formatUnderline("Games Won:") + " " + str(gamesWon) + " " +formatUnderline("KDA: ") + str('%.3f' % kda)
+
+                data.add_field(name=combinedName, value=string)
+            yield from self.bot.say(embed=data)
+        except LoLException as e:
+            if e == error_404:
+                yield from self.bot.say(formatBoldItalic("Error: ") + " Summoner " + ign + " not found, " +
+                                        "or hasn't played enough ranked games")
 
     @commands.command()
     @asyncio.coroutine
