@@ -16,6 +16,8 @@ class Math():
             yield from self.bot.say(":wink:")
         elif left == 9 and right == 6:
             yield from self.bot.say(":angry:")
+        elif left + right == 69:
+            yield from self.bot.say(":eggplant::sweat_drops:")
         else:
             yield from self.bot.say((left + right))
 
