@@ -11,6 +11,7 @@ from botInfo import riot_api_key
 servers = ['br', 'eune', 'euw',
            'kr', 'lan', 'las', 'na',
            'oce', 'ru', 'tr', 'jp']
+
 queues = {'NORMAL': '5v5: Normal Game',
           'BOT': '5v5: Co-Op vs AI',
           'RANKED_SOLO_5x5': '5v5: Solo Queue',
@@ -71,12 +72,15 @@ class League():
         else:
             services = session.get_server_status(server)['services']
             pprint.pprint(services)
-
+            data = discord.Embed(description=formatBoldUnderline("Game Status"),
+                                 colour=discord.Colour(value=0X008000))
             for n in range(0, 4):
-                yield from self.bot.say(formatBold(services[n]['name'] + ": ") + services[n]['status'])
+                data.add_field(name=services[n]['name'], value=services[n]['status'])
                 if services[n]['incidents']:
-                    incident = getIncident(services[n])
-                    yield from self.bot.say(formatBoldItalic("Incident: ") + incident)
+                    data.add_field(name=services[n]['name'] + "Incident", value=getIncident(services[n]))
+
+        yield from self.bot.say(embed=data)
+
 
     @commands.command()
     @asyncio.coroutine
@@ -89,7 +93,7 @@ class League():
             pprint.pprint(leagueInfo)
             summonerName = summoner['name']
             summonerId = summoner['id']
-            data = discord.Embed(description=formatUnderline("Ranked Information for:") + " " + summonerName,
+            data = discord.Embed(description=formatBoldUnderline("Ranked Information for:") + " " + summonerName,
                                  colour=discord.Colour(value=borderColors[leagueInfo[str(summonerId)][0]['tier']]))
             for q in leagueInfo[str(summonerId)]:
                 queueType = queues[q['queue']]
@@ -128,7 +132,8 @@ class League():
 
         except LoLException as e:
             if e == error_404:
-                yield from self.bot.say(formatBoldItalic("Error: ") + " Summoner " + ign + " not found.")
+                yield from self.bot.say(formatBoldItalic("Error: ") + " Summoner " + ign + " not found, " +
+                                       "or hasn't played enough ranked games")
 
     @commands.command()
     @asyncio.coroutine
@@ -178,10 +183,8 @@ def formatUnderline(inp: str):
     return "__" + inp + "__"
 
 
-# Generates a Color for the embedding
-def generateColor():
-    color = ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
-    color = int(color, 16)
+def formatBoldUnderline(inp: str):
+    return "__**" + inp + "**__"
 
 
 def setup(bot):

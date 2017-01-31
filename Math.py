@@ -3,7 +3,6 @@ from discord.ext import commands
 import asyncio
 
 
-
 class Math():
     def __init__(self, bot):
         self.bot = bot
@@ -13,7 +12,12 @@ class Math():
     def add(self, left: int, right: int):
         """Adds 2 Numbers"""
         print("adding")
-        yield from self.bot.say((left + right))
+        if left == 6 and right == 9:
+            yield from self.bot.say(":wink:")
+        elif left == 9 and right == 6:
+            yield from self.bot.say(":angry:")
+        else:
+            yield from self.bot.say((left + right))
 
     @commands.command()
     @asyncio.coroutine
