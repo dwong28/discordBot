@@ -39,6 +39,13 @@ queues = {'NORMAL': '5v5: Normal Game',
           'RANKED_FLEX_SR': '5v5 - Flex Queue',
           'RANKED_FLEX_TT': '3v3- Flex Queue'}
 
+borderColors = {'BRONZE': 0XCD7F32,
+                'SILVER': 0XBFC1C2,
+                'GOLD': 0XD4AF37,
+                'PLATINUM': 0X008080,
+                'DIAMOND': 0X7DF9FF,
+                'MASTER': 0X848482,
+                'CHALLENGER': 0XFFDF00}
 
 # Establish Connection to Riot API
 session = RiotWatcher(riot_api_key)
@@ -82,8 +89,8 @@ class League():
             pprint.pprint(leagueInfo)
             summonerName = summoner['name']
             summonerId = summoner['id']
-            data = discord.Embed(description=formatUnderline("Ranked Information for: ") + summonerName,
-                                 colour=discord.Colour(value=generateColor()))
+            data = discord.Embed(description=formatUnderline("Ranked Information for:") + " " + summonerName,
+                                 colour=discord.Colour(value=borderColors[leagueInfo[str(summonerId)][0]['tier']]))
             for q in leagueInfo[str(summonerId)]:
                 queueType = queues[q['queue']]
                 tier = q['tier']
@@ -91,18 +98,32 @@ class League():
                 lp = q['entries'][0]['leaguePoints']
 
                 data.add_field(name="Queue Type", value=queueType, inline=False)
-                data.add_field(name="Division Name",value=q['name'])
+                data.add_field(name="Division Name", value=q['name'])
                 data.add_field(name="Division - Tier", value=tier + " " + division)
                 data.add_field(name="League Points", value=str(lp))
-                if q['entries'][0]['isHotStreak']:
-                    data.add_field(name="On a Streak: ",value=":fire:")
-                if q['entries'][0]['isVeteran']:
-                    data.add_field(name="Is a Veteran: ", value=":medal:")
-                if q['entries'][0]['isFreshBlood']:
-                    data.add_field(name="Is New: ", value=":star2:")
-                if q['entries'][0]['isInactive']:
-                    data.add_field(name="Is Inactive: ", value=":skull:")
+                if 'miniSeries' in q['entries'][0]:
+                    promoStat = q['entries'][0]['miniSeries']['progress']
+                    series = str()
+                    for c in promoStat:
+                        if c is 'W':
+                            series += ":white_check_mark:"
+                        if c is 'L':
+                            series += ":x:"
+                        if c is 'N':
+                            series += ":question:"
+                    data.add_field(name="Series Status", value=series)
 
+                merits = str()
+                if q['entries'][0]['isHotStreak']:
+                    merits += ":fire:"
+                if q['entries'][0]['isVeteran']:
+                    merits += ":medal:"
+                if q['entries'][0]['isFreshBlood']:
+                    merits += ":star2:"
+                if q['entries'][0]['isInactive']:
+                    merits += ":skull:"
+                if merits:
+                    data.add_field(name="Denotations", value=merits)
             yield from self.bot.say(embed=data)
 
         except LoLException as e:
