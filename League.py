@@ -90,7 +90,8 @@ class League():
                 division = q['entries'][0]['division']
                 lp = q['entries'][0]['leaguePoints']
 
-                data.add_field(name="Queue Type", value=queueType)
+                data.add_field(name="Queue Type", value=queueType, inline=False)
+                data.add_field(name="Division Name",value=q['name'])
                 data.add_field(name="Division - Tier", value=tier + " " + division)
                 data.add_field(name="League Points", value=str(lp))
                 if q['entries'][0]['isHotStreak']:
