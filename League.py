@@ -1,15 +1,43 @@
 import discord
-from discord.ext import commands
+import random
 import asyncio
 import pprint
-from riotwatcher import RiotWatcher
+from riotwatcher import RiotWatcher, LoLException, error_404
+from discord.ext import commands
 from botInfo import riot_api_key
+
 
 # Valid League of Legends Servers
 servers = ['br', 'eune', 'euw',
            'kr', 'lan', 'las', 'na',
            'oce', 'ru', 'tr', 'jp']
-
+queues = {'NORMAL': '5v5: Normal Game',
+          'BOT': '5v5: Co-Op vs AI',
+          'RANKED_SOLO_5x5': '5v5: Solo Queue',
+          'RANKED_PREMADE_3x3': '5v5: Ranked Premade',
+          'RANKED_PREMADE_5x5': '5v5: Ranked Premade',
+          'ODIN_UNRANKED': 'Dominion',
+          'RANKED_TEAM_3x3': '3v3: Ranked Teams',
+          'RANKED_TEAM_5x5': '5v5: Ranked Teams',
+          'NORMAL_3x3': '3v3: Normal Game',
+          'BOT_3x3': '3v3: Co-Op vs AI',
+          'CAP_5x5': 'Team Builder',
+          'ARAM_UNRANKED_5x5': 'ARAM',
+          'ONEFORALL_5x5': 'One For All',
+          'FIRSTBLOOD_1x1': '1v1 Snowdown',
+          'FIRSTBLOOD_2x2': '2v2 Snowdown',
+          'SR_6x6': 'Hexakill - SR',
+          'URF': 'Ultra Rapid Fire',
+          'URF_BOT': 'Ultra Rapid Fire - Co-Op vs AI',
+          'NIGHTMARE_BOT': 'Doom Bots',
+          'ASCENSION': 'Ascension',
+          'HEXAKILL': 'Hexakill - TT',
+          'KING_PORO': 'Legend of the Poro King',
+          'COUNTER_PICK': 'Nemesis Draft',
+          'BILGEWATER': 'Black Market Brawlers',
+          'SIEGE': 'Siege',
+          'RANKED_FLEX_SR': '5v5 - Flex Queue',
+          'RANKED_FLEX_TT': '3v3- Flex Queue'}
 
 
 # Establish Connection to Riot API
@@ -42,6 +70,43 @@ class League():
                 if services[n]['incidents']:
                     incident = getIncident(services[n])
                     yield from self.bot.say(formatBoldItalic("Incident: ") + incident)
+
+    @commands.command()
+    @asyncio.coroutine
+    def rank(self, ign: str):
+        """Gives Ranked Information for the specified Summoner."""
+        try:
+            summoner = session.get_summoner(name=ign)
+            leagueInfo = session.get_league_entry(summoner_ids=[summoner['id'], ])
+            pprint.pprint(summoner)
+            pprint.pprint(leagueInfo)
+            summonerName = summoner['name']
+            summonerId = summoner['id']
+            data = discord.Embed(description=formatUnderline("Ranked Information for: ") + summonerName,
+                                 colour=discord.Colour(value=generateColor()))
+            for q in leagueInfo[str(summonerId)]:
+                queueType = queues[q['queue']]
+                tier = q['tier']
+                division = q['entries'][0]['division']
+                lp = q['entries'][0]['leaguePoints']
+
+                data.add_field(name="Queue Type", value=queueType)
+                data.add_field(name="Division - Tier", value=tier + " " + division)
+                data.add_field(name="League Points", value=str(lp))
+                if q['entries'][0]['isHotStreak']:
+                    data.add_field(name="On a Streak: ",value=":fire:")
+                if q['entries'][0]['isVeteran']:
+                    data.add_field(name="Is a Veteran: ", value=":medal:")
+                if q['entries'][0]['isFreshBlood']:
+                    data.add_field(name="Is New: ", value=":star2:")
+                if q['entries'][0]['isInactive']:
+                    data.add_field(name="Is Inactive: ", value=":skull:")
+
+            yield from self.bot.say(embed=data)
+
+        except LoLException as e:
+            if e == error_404:
+                yield from self.bot.say(formatBoldItalic("Error: ") + " Summoner " + ign + " not found.")
 
     @commands.command()
     @asyncio.coroutine
@@ -86,5 +151,17 @@ def formatBoldItalic(inp: str):
 def formatItalic(inp: str):
     return "*" + inp + "*"
 
+
+def formatUnderline(inp: str):
+    return "__" + inp + "__"
+
+
+# Generates a Color for the embedding
+def generateColor():
+    color = ''.join([random.choice('0123456789ABCDEF') for x in range(6)])
+    color = int(color, 16)
+
+
 def setup(bot):
     bot.add_cog(League(bot))
+
