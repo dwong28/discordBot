@@ -137,6 +137,27 @@ class League():
 
     @commands.command()
     @asyncio.coroutine
+    def getFreeChamps(self):
+        champList = session.get_all_champions(free_to_play=True)
+        data = discord.Embed(description=formatBold("This Week's Free Champions"),
+                             colour=discord.Colour(value=0XFFC0CB))
+        freeChampList = str()
+        for champion in champList['champions']:
+            id = champion['id']
+            if champion['freeToPlay'] is True:
+                champInfo = session.static_get_champion(id)
+                champName = champInfo['name']
+                champTitle = champInfo['title']
+                freeChampList += champName + ": " + champTitle + "\n"
+        data.add_field(name="Free Champions", value=freeChampList)
+
+        yield from self.bot.say(embed=data)
+
+
+
+
+    @commands.command()
+    @asyncio.coroutine
     def trivia(self, string: str):
         """Plays a game of Trivia."""
         if string.lower() == "start":
